@@ -1,15 +1,19 @@
 from PIL import Image
 
+bgColour = input("Enter background colour (b/w):    ").lower()
+
 #                Darkest                                                         Lighest  (On black background)
 characterString = ".'`,^:\";~-_+<>i!lI?/\|()1{}[]rcvunxzjftLCJUYXZO0Qoahkbdpqwm*WMB8&%$#@"
 ASCIIChars = []
 for i in characterString:
     ASCIIChars.append(i)
-ASCIIChars.reverse()
+if bgColour == "w":
+    ASCIIChars.reverse()
 
 image = Image.open("picture.png")
 image = image.convert("RGB")
 width, height = image.size
+
 
 
 colourValues = [[[None] for i in range(width)] for j in range(height)] #Creates empty 2D array with dimensions ofimage
