@@ -28,6 +28,12 @@ def convertImageToASCII(image, width, height):
     return ASCIIText
 
 
+def printASCIIArray(array):
+    for column in array:
+        print("".join(column))
+        
+
+
 if pictureOrVideo == "p":
     image = Image.open("picture.png")
     image = image.convert("RGB")
@@ -37,33 +43,41 @@ if pictureOrVideo == "p":
 
     file = open("ASCII.txt", "w")
 
+    printASCIIArray(ASCIIImage)
     for column in ASCIIImage:
-        print("".join(column))
         file.writelines("".join(column) + "\n")
 
     file.close()
 
 
 elif pictureOrVideo == "v":
-    cap = cv2.VideoCapture("video.mp4")
-    frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+    cap = cv2.VideoCapture("testVideo.mp4")
+    frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT)) #Number of frames in video
     frameCount = 0
+    os.mkdir("videoFrames") #Creates new folder for all frames
+    
     while frameCount < frames:
         success,image = cap.read()
-        cv2.imwrite("videoFrame.png", image)
-        image = Image.open("videoFrame.png")
-        image = image.resize((213, 120))
+        image = cv2.resize(image, (int(213/image.shape[1]*100), int(120/image.shape[0]*100)), interpolation = cv2.INTER_AREA)
+        cv2.imwrite("videoFrames/videoFrame" + str(frameCount) + ".png", image)
 
+        frameCount += 1
+
+
+    for i in range(frameCount): #Prints each image from frame folder
+        image = Image.open("videoFrames/videoFrame" + str(i) + ".png")
         width, height = image.size
-        
         ASCIIFrame = convertImageToASCII(image, width, height)
 
         os.system("cls" if os.name == "nt" else "clear") #Clears terminal based on OS
 
-        for column in ASCIIFrame:
-            print("".join(column))
+        printASCIIArray(ASCIIFrame)
 
-        frameCount += 1
+    for i in range(frameCount): #Deletes all images in frame folder
+        os.remove("videoFrames/videoFrame" + str(i) +".png")
+    
+    os.rmdir("videoFrames") #deletes videoFrames folder
+
 
 else:
     print("Error: Invalid option. Please enter v or p")
