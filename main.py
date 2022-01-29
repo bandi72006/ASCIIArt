@@ -1,13 +1,18 @@
+from turtle import bgcolor
 from PIL import Image
+
+bgColour = input("Colour of background (b/w):   ").lower()
 
 #                Darkest                                                         Lighest  (On black background)
 characterString = ".'`,^:\";~-_+<>i!lI?/\|()1{}[]rcvunxzjftLCJUYXZO0Qoahkbdpqwm*WMB8&%$#@"
 ASCIIChars = []
 for i in characterString:
     ASCIIChars.append(i)
-ASCIIChars.reverse()
 
-image = Image.open("picture.png")
+if bgColour == "w":
+    ASCIIChars.reverse()
+
+image = Image.open("picture.jpg")
 image = image.convert("RGB")
 width, height = image.size
 
