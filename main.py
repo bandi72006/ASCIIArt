@@ -7,7 +7,6 @@ import time
 bgColour = input("Enter background colour (b/w):    ").lower()
 pictureOrVideo = input("Picture or video? (p/v):    ").lower()
 
-bgColour = input("Colour of background (b/w):   ").lower()
 
 #                Darkest                                                         Lighest  (On black background)
 characterString = ".'`,^:\";~-_+<>i!lI?/\|()1{}[]rcvunxzjftLCJUYXZO0Qoahkbdpqwm*WMB8&%$#@"
@@ -116,6 +115,7 @@ elif pictureOrVideo == "v":
         os.system("cls" if os.name == "nt" else "clear") #Clears terminal based on OS
 
         printASCIIArray(frames[i])
+        
         time.sleep(1/60)
 
 
