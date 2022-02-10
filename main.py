@@ -1,10 +1,12 @@
+#Bandar Al Aish - bandi72006
+
 from PIL import Image
 import os
 import cv2
 import time
 
 bgColour = input("Enter background colour (b/w):    ").lower()
-pictureOrVideo = input("Picture or video? (p/v):    ").lower()
+pictureOrVideo = input("Picture or video or camera? (p/v/c):    ").lower()
 
 #                Darkest                                                         Lighest  (On black background)
 characterString = ".'`,^:\";~-_+<>i!lI?/\|()1{}[]rcvunxzjftLCJUYXZO0Qoahkbdpqwm*WMB8&%$#@"
@@ -38,7 +40,9 @@ def printASCIIArray(array):
 if pictureOrVideo == "p":
     image = Image.open("picture.png")
     image = image.convert("RGB")
+    image = image.resize((300,300))
     width, height = image.size
+    
 
     ASCIIImage = convertImageToASCII(image, width, height)
 
@@ -52,7 +56,7 @@ if pictureOrVideo == "p":
 
 
 elif pictureOrVideo == "v":
-    vid = cv2.VideoCapture("video.mp4")
+    vid = cv2.VideoCapture("videoJDSO.mp4")
 
     frames = int(vid.get(cv2.CAP_PROP_FRAME_COUNT)) #Number of frames in video
     fps = int(vid.get(cv2.CAP_PROP_FPS))
@@ -118,15 +122,38 @@ elif pictureOrVideo == "v":
 
     finishTime = time.time() - startTime #calculates time to display all frames
 
-    print("Duration of video: " + str(videoDuration))
-    print("Duration of display: " + str(finishTime))
-
     for i in range(frameCount): #Deletes all images in frame folder
         os.remove("videoFrames/videoFrame" + str(i) +".png")
     
     os.rmdir("videoFrames") #deletes videoFrames folder
 
     os.system("cls" if os.name == "nt" else "clear") #Clears terminal based on OS
+
+    print("Duration of video: " + str(videoDuration))
+    print("Duration of display: " + str(finishTime))
+
+elif pictureOrVideo == "c":
+    vid = cv2.VideoCapture(0)
+
+    while True:
+        ret, image = vid.read()
+        image = Image.fromarray(image) #converts CV2 image to Pillow image
+        image = image.convert("RGB")
+
+        #image = image.resize((426, 240)) #240p
+        image = image.resize((256,144)) #144p
+
+        width, height = image.size
+        ASCIIFrame = convertImageToASCII(image, width, height)
+        os.system("cls" if os.name == "nt" else "clear") #Clears terminal based on OS
+        printASCIIArray(ASCIIFrame)
+        
+        
+
+        #cv2.imshow('frame', frame)
+    
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
 
 
 else:
