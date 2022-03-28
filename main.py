@@ -1,11 +1,14 @@
-from turtle import bgcolor
-from PIL import Image
+#Bandar Al Aish - bandi72006
+
+from PIL import Image, ImageDraw, ImageFont
 import os
 import cv2
 import time
+import numpy as np
+import pyvirtualcam #Credits: https://github.com/letmaik/pyvirtualcam
 
 bgColour = input("Enter background colour (b/w):    ").lower()
-pictureOrVideo = input("Picture or video? (p/v):    ").lower()
+pictureOrVideo = input("Picture or video or camera? (p/v/c):    ").lower()
 
 
 #                Darkest                                                         Lighest  (On black background)
@@ -18,7 +21,8 @@ for i in characterString:
 if bgColour == "w":
     ASCIIChars.reverse()
 
-def convertImageToASCII(image, width, height):
+#                                              How much times a letter repeats
+def convertImageToASCII(image, width, height, letterDensity):
 
     colourValues = [[[None] for i in range(width)] for j in range(height)] #Creates empty 2D array with dimensions of image
     ASCIIText = [[[None] for i in range(width)] for j in range(height)] #Creates empty 2D array with dimensions of image
@@ -26,7 +30,7 @@ def convertImageToASCII(image, width, height):
     for y in range(height):
         for x in range(width):
             colourValues[y][x] = sum(image.getpixel((x,y))) #Adds R, G, and B values 
-            ASCIIText[y][x] = ASCIIChars[colourValues[y][x]//69]*2
+            ASCIIText[y][x] = ASCIIChars[colourValues[y][x]//69]*letterDensity
     
     return ASCIIText
 
@@ -40,9 +44,11 @@ def printASCIIArray(array):
 if pictureOrVideo == "p":
     image = Image.open("picture.png")
     image = image.convert("RGB")
+    image = image.resize((300,300))
     width, height = image.size
+    
 
-    ASCIIImage = convertImageToASCII(image, width, height)
+    ASCIIImage = convertImageToASCII(image, width, height, 2)
 
     file = open("ASCII.txt", "w")
 
@@ -54,7 +60,7 @@ if pictureOrVideo == "p":
 
 
 elif pictureOrVideo == "v":
-    vid = cv2.VideoCapture("video.mp4")
+    vid = cv2.VideoCapture("videoJDSO.mp4")
 
     frames = int(vid.get(cv2.CAP_PROP_FRAME_COUNT)) #Number of frames in video
     fps = int(vid.get(cv2.CAP_PROP_FPS))
@@ -96,7 +102,7 @@ elif pictureOrVideo == "v":
     for i in range(frameCount):
         image = Image.open("videoFrames/videoFrame" + str(i) + ".png")
         width, height = image.size
-        ASCIIFrame = convertImageToASCII(image, width, height)
+        ASCIIFrame = convertImageToASCII(image, width, height, 2)
         frames.append(ASCIIFrame)
 
     startTime = time.time() 
@@ -121,9 +127,6 @@ elif pictureOrVideo == "v":
 
     finishTime = time.time() - startTime #calculates time to display all frames
 
-    print("Duration of video: " + str(videoDuration))
-    print("Duration of display: " + str(finishTime))
-
     for i in range(frameCount): #Deletes all images in frame folder
         os.remove("videoFrames/videoFrame" + str(i) +".png")
     
@@ -131,10 +134,56 @@ elif pictureOrVideo == "v":
 
     os.system("cls" if os.name == "nt" else "clear") #Clears terminal based on OS
 
+    print("Duration of video: " + str(videoDuration))
+    print("Duration of display: " + str(finishTime))
+
+elif pictureOrVideo == "c":
+    font = ImageFont.truetype('FreeMono.ttf', 1)
+    with pyvirtualcam.Camera(width=600, height=400, fps=20) as cam:
+        vid = cv2.VideoCapture(0)
+        #vid = cv2.VideoCapture("videoJDSO.mp4")
+        #print(f'Using virtual camera: {cam.device}')
+        while True:
+            ret, image = vid.read()
+            #cv2.imshow('my webcam', image)
+            #if cv2.waitKey(1) == 27: 
+            #    break  # esc to quit
+
+            image = Image.fromarray(image) #converts CV2 image to Pillow image
+            image = image.convert("RGB")
+
+            #image = image.resize((426, 240)) #240p
+            image = image.resize((100,100))
+
+            width, height = image.size
+            ASCIIFrame = convertImageToASCII(image, width, height, 1)
+            
+            imagePNG = Image.new('RGB', (600,400))
+
+            imageGraphics = ImageDraw.Draw(imagePNG)
+
+            for i in range(len(ASCIIFrame)):
+                imageGraphics.text((0, i*4), "".join(ASCIIFrame[i]), fill=(255, 255, 255))
+            
+            
+            #imagePNG.show()
+
+            imagePNG.save("imagePNG.png")
+
+            
+
+            """os.system("cls" if os.name == "nt" else "clear") #Clears terminal based on OS
+            printASCIIArray(ASCIIFrame)
+            time.sleep(1/60)"""
+            
+            #success, frame = vid.read("imagePNG.png")
+            frame = Image.open("imagePNG.png")
+            frame = np.asarray(frame)
+            frame = frame.astype(np.uint8)
+            
+            cam.send(frame)
+            cam.sleep_until_next_frame()
+
 
 else:
-    print("Error: Invalid option. Please enter v or p")
-
-
-
-
+    print("Error: Invalid option. Please enter v, p or c")
