@@ -138,8 +138,12 @@ elif pictureOrVideo == "v":
     print("Duration of display: " + str(finishTime))
 
 elif pictureOrVideo == "c":
+    quality = 1 #standard = 1
+    outputHeight = int(400*quality)
+    outputWidth = int(600*quality)
+    
     font = ImageFont.truetype('FreeMono.ttf', 1)
-    with pyvirtualcam.Camera(width=600, height=400, fps=20) as cam:
+    with pyvirtualcam.Camera(width=outputWidth, height=outputHeight, fps=20) as cam:
         vid = cv2.VideoCapture(0)
         #vid = cv2.VideoCapture("videoJDSO.mp4")
         #print(f'Using virtual camera: {cam.device}')
@@ -153,12 +157,13 @@ elif pictureOrVideo == "c":
             image = image.convert("RGB")
 
             #image = image.resize((426, 240)) #240p
-            image = image.resize((100,100))
+            image = image.resize((int(100*quality), int(100*quality)))
 
             width, height = image.size
             ASCIIFrame = convertImageToASCII(image, width, height, 1)
+            print(ASCIIFrame)
             
-            imagePNG = Image.new('RGB', (600,400))
+            imagePNG = Image.new('RGB', (outputWidth, outputHeight))
 
             imageGraphics = ImageDraw.Draw(imagePNG)
 
